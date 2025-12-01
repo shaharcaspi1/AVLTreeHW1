@@ -33,14 +33,20 @@ class AVLNode(object):
 	def is_real_node(self):
 		return not ((self.key == None) and (self.value == None))
 
-	def rotationL(self):
-		first = self
-		second = self.right
-		third = self.right.right
+	def rotationR(self):
+		A = self
+		B = self.left
+
+		A.left = B.right
+		B.right = A
+		B.parent = A.parent
+		A.parent = B
+
+		A.height = max(A.left.height, A.right.height)
+		B.height = max(B.left.height, B.right.height)
 
 
 
-		return
 
 """
 A class implementing an AVL tree.
