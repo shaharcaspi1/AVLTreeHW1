@@ -82,7 +82,18 @@ class AVLNode(object):
 		self.rotationR
 
 		return
-
+	
+	#master for rotation
+	def rotate(self, orientation):
+		if orientation == "R":
+			self.rotationR
+		elif orientation == "L":
+			self.rotationL
+		elif orientation == "RL":
+			self.rotationRL
+		elif orientation == "LR":
+			self.rotationLR
+		return
 
 """
 A class implementing an AVL tree.
