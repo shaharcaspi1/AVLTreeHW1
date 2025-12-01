@@ -187,3 +187,7 @@ class AVLTree(object):
 	"""
 	def get_root(self):
 		return None
+
+	"""
+	test
+	"""
