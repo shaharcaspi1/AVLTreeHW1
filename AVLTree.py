@@ -33,7 +33,6 @@ class AVLNode(object):
 	def is_real_node(self):
 		return not ((self.key == None) and (self.value == None))
 
-<<<<<<< HEAD
 	def rotationR(self):
 		A = self
 		B = self.left
@@ -45,7 +44,9 @@ class AVLNode(object):
 
 		A.height = max(A.left.height, A.right.height)
 		B.height = max(B.left.height, B.right.height)
-=======
+
+		return
+
 	def rotationL(self):
 		# initilize temp vars for rotation
 		A = self
@@ -67,12 +68,20 @@ class AVLNode(object):
 		B.height = max(A.height, B.right.height)
 
 		return
+		
 
 
 	def rotationRL(self):
->>>>>>> 803d058132b6157e429f61e2ac1fdb44184bfc27
+		self.left.rotationR
+		self.rotationL
 
+		return
+	
+	def rotationLR(self):
+		self.right.rotationL
+		self.rotationR
 
+		return
 
 
 """
