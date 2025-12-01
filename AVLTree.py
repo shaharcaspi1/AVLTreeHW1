@@ -38,7 +38,6 @@ class AVLNode(object):
 		A = self
 		B = self.right
 		
-
 		# change the second's parent
 		B.parent = A.parent
 
@@ -51,8 +50,8 @@ class AVLNode(object):
 		A.parent = B
 
 		# update heights
-		A.height -= 1
-		B.height += 1
+		A.height = max(A.left.height, A.right.height)
+		B.height = max(A.height, B.right.height)
 
 		return
 
