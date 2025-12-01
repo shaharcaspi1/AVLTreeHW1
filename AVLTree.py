@@ -33,6 +33,7 @@ class AVLNode(object):
 	def is_real_node(self):
 		return not ((self.key == None) and (self.value == None))
 
+<<<<<<< HEAD
 	def rotationR(self):
 		A = self
 		B = self.left
@@ -44,6 +45,32 @@ class AVLNode(object):
 
 		A.height = max(A.left.height, A.right.height)
 		B.height = max(B.left.height, B.right.height)
+=======
+	def rotationL(self):
+		# initilize temp vars for rotation
+		A = self
+		B = self.right
+		
+		# change the second's parent
+		B.parent = A.parent
+
+		# rotate and change parent of children
+		A.right = B.left
+		B.left.parent = A
+		B.left = A
+
+		# change first's parent
+		A.parent = B
+
+		# update heights
+		A.height = max(A.left.height, A.right.height)
+		B.height = max(A.height, B.right.height)
+
+		return
+
+
+	def rotationRL(self):
+>>>>>>> 803d058132b6157e429f61e2ac1fdb44184bfc27
 
 
 
@@ -73,7 +100,7 @@ class AVLTree(object):
 	def search(self, key):
 		searchDepth = 0
 		currentNode = self.root
-		while (currentNode != None):
+		while (currentNode.key != None):
 			if(key == currentNode.key):
 				return (currentNode, searchDepth+1)
 			if(key > currentNode.key):
