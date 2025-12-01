@@ -16,12 +16,12 @@ class AVLNode(object):
 	@type value: string
 	@param value: data of your node
 	"""
-	def __init__(self, key, value):
+	def __init__(self, key, value, parent = None):
 		self.key = key
 		self.value = value
-		self.left = None
-		self.right = None
-		self.parent = None
+		self.left = AVLNode(None, None)
+		self.right = AVLNode(None, None)
+		self.parent = parent
 		self.height = -1
 		
 
@@ -31,8 +31,16 @@ class AVLNode(object):
 	@returns: False if self is a virtual node, True otherwise.
 	"""
 	def is_real_node(self):
-		return False
+		return not ((self.key == None) and (self.value == None))
 
+	def rotationL(self):
+		first = self
+		second = self.right
+		third = self.right.right
+
+
+
+		return
 
 """
 A class implementing an AVL tree.
