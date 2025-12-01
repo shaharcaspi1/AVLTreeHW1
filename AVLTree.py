@@ -45,6 +45,7 @@ class AVLTree(object):
 	"""
 	def __init__(self):
 		self.root = None
+		self.maxNode = None
 
 
 	"""searches for a node in the dictionary corresponding to the key (starting at the root)
@@ -56,6 +57,18 @@ class AVLTree(object):
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
 	def search(self, key):
+		searchDepth = 0
+		currentNode = self.root
+		while (currentNode != None):
+			if(key == currentNode.key):
+				return (currentNode, searchDepth+1)
+			if(key > currentNode.key):
+				currentNode = currentNode.right
+				searchDepth =+ 1
+			else:
+				currentNode = currentNode.left
+				searchDepth =+ 1
+
 		return None, -1
 
 
@@ -156,7 +169,7 @@ class AVLTree(object):
 	@returns: the maximal node, None if the dictionary is empty
 	"""
 	def max_node(self):
-		return None
+		return self.maxNode
 
 	"""returns the number of items in dictionary 
 
