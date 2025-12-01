@@ -188,9 +188,3 @@ class AVLTree(object):
 	def get_root(self):
 		return None
 	
-	def baba(self):
-		return "booboo"
-
-	"""
-	test
-	"""
