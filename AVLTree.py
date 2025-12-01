@@ -190,3 +190,7 @@ class AVLTree(object):
 	
 	def baba(self):
 		return "booboo"
+
+	"""
+	test
+	"""
