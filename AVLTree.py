@@ -23,7 +23,14 @@ class AVLNode(object):
 		self.right = AVLNode(None, None)
 		self.parent = parent
 		self.height = -1
+
+
+	def updateHeight(self):
+		self.height = max(self.left.height, self.right.height) + 1
 		
+	def getBalanceFactor(self):
+		return self.left.height - self.right.height
+
 
 	"""returns whether self is not a virtual node 
 
@@ -107,17 +114,10 @@ class AVLTree(object):
 	def __init__(self):
 		self.root = None
 		self.maxNode = None
+		self.size = 0
 
 
-	"""searches for a node in the dictionary corresponding to the key (starting at the root)
-        
-	@type key: int
-	@param key: a key to be searched
-	@rtype: (AVLNode,int)
-	@returns: a tuple (x,e) where x is the node corresponding to key (or None if not found),
-	and e is the number of edges on the path between the starting node and ending node+1.
-	"""
-	def search(self, key):
+	def searchMaster(self, key, isSearch):
 		searchDepth = 0
 		currentNode = self.root
 		while (currentNode.key != None):
@@ -129,8 +129,23 @@ class AVLTree(object):
 			else:
 				currentNode = currentNode.left
 				searchDepth =+ 1
+		if(isSearch):
+			return None, -1
+		else:
+			return currentNode.parent, searchDepth
 
-		return None, -1
+	"""searches for a node in the dictionary corresponding to the key (starting at the root)
+        
+	@type key: int
+	@param key: a key to be searched
+	@rtype: (AVLNode,int)
+	@returns: a tuple (x,e) where x is the node corresponding to key (or None if not found),
+	and e is the number of edges on the path between the starting node and ending node+1.
+	"""
+	def search(self, key):
+		checkNode = self.searchMaster(key, True)
+
+		return checkNode
 
 
 	"""searches for a node in the dictionary corresponding to the key, starting at the max
@@ -158,6 +173,24 @@ class AVLTree(object):
 	and h is the number of PROMOTE cases during the AVL rebalancing
 	"""
 	def insert(self, key, val):
+		parentNode, searchHeight = self.searchMaster(key, False)
+		newNode = AVLNode(key,val,parentNode)
+		if (key > parentNode.key):
+			parentNode.right = newNode
+		else:
+			parentNode.left = newNode
+
+		newNode.updateHeight()
+
+
+		self.size += 1
+
+		if (key > self.max_node):
+			self.max_node = newNode
+		
+		
+
+
 		return None, -1, -1
 
 
