@@ -16,14 +16,14 @@ class AVLNode(object):
 	@type value: string
 	@param value: data of your node
 	"""
-	def __init__(self, key, value, parent = None):
+	def __init__(self, key, value, parent = None, isVitrual = False):
 		self.key = key
 		self.value = value
-		self.left = AVLNode(None, None)
-		self.right = AVLNode(None, None)
+		# initilaize virtual sons
+		self.left = None if isVitrual else AVLNode(None, None, self, True)
+		self.right = None if isVitrual else AVLNode(None, None, self, True)
 		self.parent = parent
 		self.height = -1
-
 
 	def updateHeight(self):
 		self.height = max(self.left.height, self.right.height) + 1
@@ -31,6 +31,33 @@ class AVLNode(object):
 	def getBalanceFactor(self):
 		return self.left.height - self.right.height
 
+	def getSuccessor(self):
+		# initilaize successor
+		successor = None
+		# check for right son
+		if(self.right.key != None):
+			# update successor
+			successor = self.right
+			# go left all the way
+			while(successor.left.key != None):
+				successor = successor.left.key
+		# if no right son
+		else:
+			# initilaize temp node for finding successor
+			tempNode = self
+			tempParent = self.parent
+			# wait for first right turn (bigger than temp node)
+			rightTurn = False
+			while (not rightTurn):
+				# if parent key is smaller than node key - left turn, go up
+				if(tempParent.key < tempNode.key):
+					tempNode = tempNode.parent
+				# else - right turn, break and return parent
+				else:
+					rightTurn = True
+			# update successor
+			successor = tempParent
+		return successor
 
 	"""returns whether self is not a virtual node 
 
@@ -184,7 +211,6 @@ class AVLTree(object):
 			parentNode.left = newNode
 
 		newNode.updateHeight()
-
 
 		self.size += 1
 
