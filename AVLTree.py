@@ -187,7 +187,44 @@ class AVLTree(object):
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
 	def finger_search(self, key):
-		return None, -1
+		# initialize variables for search
+		currentNode = self.max_node
+		searchLength = 0
+		# loop for going up to find sub tree that key suppodes to be in
+		while (key < currentNode.key):
+			if (currentNode == self.get_root):
+				break
+			if (key < currentNode.parent):
+				currentNode = currentNode.parent
+				searchLength += 1
+				continue
+			elif (key > currentNode.parent):
+				break
+		# if got to root - do a regular search
+		if (currentNode == self.get_root):
+			x,e = self.search(key)
+			# if not found return None, -1
+			if (x == None):
+				return None,-1
+			# if found add e to searchLength add return
+			else:
+				searchLength += e
+				return x, searchLength
+		# if not root: do search from currentNode
+		else:
+			while (currentNode.key != None):
+				if(key == currentNode.key):
+					return (currentNode, searchLength+1)
+				if(key > currentNode.key):
+					currentNode = currentNode.right
+					searchLength =+ 1
+				else:
+					currentNode = currentNode.left
+					searchLength =+ 1
+		if (currentNode != None):
+			return currentNode, searchLength
+		else:
+			return None, -1
 
 
 	"""inserts a new node into the dictionary with corresponding key and value (starting at the root)
@@ -258,6 +295,7 @@ class AVLTree(object):
 	and h is the number of PROMOTE cases during the AVL rebalancing
 	"""
 	def finger_insert(self, key, val):
+		
 		return None, -1, -1
 
 
