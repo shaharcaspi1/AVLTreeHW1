@@ -5,7 +5,7 @@
 #name2:
 #username2:
 
-
+import math
 """A class represnting a node in an AVL tree"""
 
 class AVLNode(object):
@@ -79,27 +79,30 @@ class AVLNode(object):
 
 
 	def rotationRL(self):
-		self.left.rotationR
+		self.right.rotationR
 		self.rotationL
 
 		return
 	
 	def rotationLR(self):
-		self.right.rotationL
+		self.left.rotationL
 		self.rotationR
 
 		return
 	
-	#master for rotation
-	def rotate(self, orientation):
-		if orientation == "R":
-			self.rotationR
-		elif orientation == "L":
-			self.rotationL
-		elif orientation == "RL":
-			self.rotationRL
-		elif orientation == "LR":
-			self.rotationLR
+	#master for rotation, gets a node and its BF (always 2 if rotation is needed), and its son in the problematic route
+	def rotate(self, BF, son):
+		sonBF = son.getBalanceFactor()
+		if(BF == 2):
+			if(sonBF == 1 or sonBF == 0):
+				self.rotationR()
+			elif(sonBF == -1):
+				self.rotationLR()
+		else:
+			if(sonBF == -1 or sonBF == 0):
+				self.rotationL()
+			elif(sonBF == 1):
+				self.rotationRL()
 		return
 
 """
@@ -192,6 +195,28 @@ class AVLTree(object):
 
 
 		return None, -1, -1
+	
+
+	#preforms the rotation logic for insertion/deletion
+	def balanceTree(self, node: AVLNode, isInsert: bool):
+		son = None
+		while(node != None):
+			currentHeight = node.height
+			newHeight = node.updateHeight()
+			balanceFactor = node.getBalanceFactor()
+			if(math.abs(balanceFactor) < 2 and currentHeight == newHeight):
+				break
+			elif(math.abs(balanceFactor) < 2 and currentHeight != newHeight):
+				son = node
+				node = node.parent
+				continue
+			else:
+				node.rotate(balanceFactor, son)
+				if(isInsert):
+					break
+				son = node
+				node = node.parent
+					
 
 
 	"""inserts a new node into the dictionary with corresponding key and value, starting at the max
