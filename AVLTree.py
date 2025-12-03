@@ -203,45 +203,41 @@ class AVLTree(object):
 	and h is the number of PROMOTE cases during the AVL rebalancing
 	"""
 	def insert(self, key, val):
+		#inserting the node
 		parentNode, searchHeight = self.searchMaster(key, False)
-		newNode = AVLNode(key,val,parentNode)
-		if (key > parentNode.key):
-			parentNode.right = newNode
+		node = AVLNode(key,val,parentNode)
+		if (key > node.key):
+			parentNode.right = node
 		else:
-			parentNode.left = newNode
+			parentNode.left = node
+		node.updateHeight()
 
-		newNode.updateHeight()
-
+		#tree fields stuff
 		self.size += 1
-
 		if (key > self.max_node):
-			self.max_node = newNode
+			self.max_node = node
 		
-		
-
-
-		return None, -1, -1
-	
-
-	#preforms the rotation logic for insertion/deletion
-	def balanceTree(self, node: AVLNode, isInsert: bool):
-		son = None
-		while(node != None):
-			currentHeight = node.height
-			newHeight = node.updateHeight()
-			balanceFactor = node.getBalanceFactor()
+		#rotating
+		promote = 0
+		son = node
+		while(parentNode != None):
+			currentHeight = parentNode.height
+			newHeight = parentNode.updateHeight()
+			balanceFactor = parentNode.getBalanceFactor()
 			if(math.abs(balanceFactor) < 2 and currentHeight == newHeight):
 				break
 			elif(math.abs(balanceFactor) < 2 and currentHeight != newHeight):
-				son = node
-				node = node.parent
+				son = parentNode
+				parentNode = parentNode.parent
+				promote += 1
 				continue
 			else:
-				node.rotate(balanceFactor, son)
-				if(isInsert):
-					break
-				son = node
-				node = node.parent
+				parentNode.rotate(balanceFactor, son)
+				break
+		
+		return node, searchHeight+1, promote
+		
+			
 					
 
 
