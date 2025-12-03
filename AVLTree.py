@@ -35,9 +35,15 @@ class AVLNode(object):
 			parent.right = self
 
 	def updateHeight(self):
+		if(self.key is None):
+			return
 		self.height = max(self.left.height, self.right.height) + 1
 		
 	def getBalanceFactor(self):
+		if(self.key is None):
+			return 0
+		self.left.updateHeight()
+		self.right.updateHeight()
 		return self.left.height - self.right.height
 
 	def getSuccessor(self):
@@ -102,7 +108,7 @@ class AVLNode(object):
 		# initilize temp vars for rotation
 		A = self
 		B = self.right
-		
+
 		# change the second's parent
 		B.setParent(A.parent)
 
@@ -289,6 +295,8 @@ class AVLTree(object):
 				promote += 1
 				continue
 			else:
+				if(parentNode is self.root):
+					self.root = son
 				parentNode.rotate(balanceFactor, son)
 				break
 		
