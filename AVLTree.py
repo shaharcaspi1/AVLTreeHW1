@@ -21,15 +21,13 @@ class AVLNode(object):
 		# initilaize virtual sons
 		self.left = None if isVitrual else AVLNode(None, None, self, True)
 		self.right = None if isVitrual else AVLNode(None, None, self, True)
-		self.parent = parent
+		self.setParent(parent)
 		self.height = -1
 
 	#sets the parent of a node
 	def setParent(self, parent):
-		print(parent)
 		self.parent = parent
-		if(parent is None):
-			print("done")
+		if(parent is None or self.key is None):
 			return
 		if(parent.key > self.key):
 			parent.left = self
@@ -255,6 +253,7 @@ class AVLTree(object):
 		if(self.root == None):
 			self.root = AVLNode(key, val)
 			self.max_node = self.root
+			self.size += 1
 			return
 		#inserting the node
 		parentNode, searchHeight = self.searchMaster(key, False)
