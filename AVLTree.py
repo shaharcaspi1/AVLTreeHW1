@@ -77,14 +77,22 @@ class AVLNode(object):
 		return not ((self.key == None) and (self.value == None))
 
 	def rotationR(self):
+		# initilize temp vars for rotation
 		A = self
 		B = self.left
 
+		# change the second's parent
+		B.setParent(A.parent)
+
+		# rotate and change parent of children
 		A.left = B.right
+		B.right.parent = A
 		B.right = A
-		B.setParent (A.parent)
+
+		# change first's parent
 		A.parent = B
 
+		# update heights
 		A.height = max(A.left.height, A.right.height)
 		B.height = max(B.left.height, B.right.height)
 
@@ -153,7 +161,7 @@ class AVLTree(object):
 	def __init__(self):
 		self.root = None
 		self.maxNode = None
-		self.size = 0
+		self.treeSize = 0
 
 
 	def searchMaster(self, key, isSearch):
@@ -253,7 +261,7 @@ class AVLTree(object):
 		if(self.root == None):
 			self.root = AVLNode(key, val)
 			self.max_node = self.root
-			self.size += 1
+			self.treeSize += 1
 			return
 		#inserting the node
 		parentNode, searchHeight = self.searchMaster(key, False)
@@ -262,7 +270,7 @@ class AVLTree(object):
 		node.updateHeight()
 
 		#tree fields stuff
-		self.size += 1
+		self.treeSize += 1
 		if (key > self.max_node.key):
 			self.max_node = node
 		
@@ -368,7 +376,7 @@ class AVLTree(object):
 	@returns: the number of items in dictionary 
 	"""
 	def size(self):
-		return self.size	
+		return self.treeSize	
 
 
 	"""returns the root of the tree representing the dictionary
