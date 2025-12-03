@@ -129,14 +129,14 @@ class AVLNode(object):
 
 
 	def rotationRL(self):
-		self.right.rotationR
-		self.rotationL
+		self.right.rotationR()
+		self.rotationL()
 
 		return
 	
 	def rotationLR(self):
-		self.left.rotationL
-		self.rotationR
+		self.left.rotationL()
+		self.rotationR()
 
 		return
 	
@@ -147,6 +147,7 @@ class AVLNode(object):
 			if(sonBF == 1 or sonBF == 0):
 				self.rotationR()
 			elif(sonBF == -1):
+				print(son.key ," LR coming")
 				self.rotationLR()
 		else:
 			if(sonBF == -1 or sonBF == 0):
