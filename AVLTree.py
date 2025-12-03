@@ -5,7 +5,6 @@
 #name2:
 #username2:
 
-import math
 """A class represnting a node in an AVL tree"""
 
 class AVLNode(object):
@@ -24,6 +23,18 @@ class AVLNode(object):
 		self.right = None if isVitrual else AVLNode(None, None, self, True)
 		self.parent = parent
 		self.height = -1
+
+	#sets the parent of a node
+	def setParent(self, parent):
+		print(parent)
+		self.parent = parent
+		if(parent is None):
+			print("done")
+			return
+		if(parent.key > self.key):
+			parent.left = self
+		else:
+			parent.right = self
 
 	def updateHeight(self):
 		self.height = max(self.left.height, self.right.height) + 1
@@ -73,7 +84,7 @@ class AVLNode(object):
 
 		A.left = B.right
 		B.right = A
-		B.parent = A.parent
+		B.setParent (A.parent)
 		A.parent = B
 
 		A.height = max(A.left.height, A.right.height)
@@ -87,7 +98,7 @@ class AVLNode(object):
 		B = self.right
 		
 		# change the second's parent
-		B.parent = A.parent
+		B.setParent(A.parent)
 
 		# rotate and change parent of children
 		A.right = B.left
@@ -240,18 +251,20 @@ class AVLTree(object):
 	and h is the number of PROMOTE cases during the AVL rebalancing
 	"""
 	def insert(self, key, val):
+		#tree is empty
+		if(self.root == None):
+			self.root = AVLNode(key, val)
+			self.max_node = self.root
+			return
 		#inserting the node
 		parentNode, searchHeight = self.searchMaster(key, False)
-		node = AVLNode(key,val,parentNode)
-		if (key > node.key):
-			parentNode.right = node
-		else:
-			parentNode.left = node
+		node = AVLNode(key,val)
+		node.setParent(parentNode)
 		node.updateHeight()
 
 		#tree fields stuff
 		self.size += 1
-		if (key > self.max_node):
+		if (key > self.max_node.key):
 			self.max_node = node
 		
 		#rotating
@@ -261,9 +274,9 @@ class AVLTree(object):
 			currentHeight = parentNode.height
 			newHeight = parentNode.updateHeight()
 			balanceFactor = parentNode.getBalanceFactor()
-			if(math.abs(balanceFactor) < 2 and currentHeight == newHeight):
+			if(abs(balanceFactor) < 2 and currentHeight == newHeight):
 				break
-			elif(math.abs(balanceFactor) < 2 and currentHeight != newHeight):
+			elif(abs(balanceFactor) < 2 and currentHeight != newHeight):
 				son = parentNode
 				parentNode = parentNode.parent
 				promote += 1
