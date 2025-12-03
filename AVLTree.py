@@ -267,7 +267,7 @@ class AVLTree(object):
 		#tree is empty
 		if(self.root == None):
 			self.root = AVLNode(key, val)
-			self.max_node = self.root
+			self.maxNode = self.root
 			self.treeSize += 1
 			return
 		#inserting the node
@@ -278,8 +278,8 @@ class AVLTree(object):
 
 		#tree fields stuff
 		self.treeSize += 1
-		if (key > self.max_node.key):
-			self.max_node = node
+		if (key > self.maxNode.key):
+			self.maxNode = node
 		
 		#rotating
 		promote = 0
@@ -296,9 +296,9 @@ class AVLTree(object):
 				promote += 1
 				continue
 			else:
-				if(parentNode is self.root):
-					self.root = son
 				parentNode.rotate(balanceFactor, son)
+				if(parentNode is self.root):
+					self.root = parentNode.parent
 				break
 		
 		return node, searchHeight+1, promote
@@ -330,9 +330,78 @@ class AVLTree(object):
 	@pre: node is a real pointer to a node in self
 	"""
 	def delete(self, node):
+		#delete the node and get the parent of the physically deleted node(might be the parent of where the succesor was)
+		currentNode = self.BSTdelete(node)
+		#rotate
+		while(currentNode is not None):
+			balanceFactor = currentNode.getBalanceFactor()
+			currentHeight = currentNode.height
+			newHeight = currentNode.updateHeight()
+			if(abs(balanceFactor) < 2 and currentHeight == newHeight):
+				break
+			elif(abs(balanceFactor) < 2 and currentHeight != newHeight):
+				currentNode = currentNode.parent
+				continue
+			else:
+				son = currentNode.right if balanceFactor == 2 else currentNode.left
+				currentNode.rotate(balanceFactor, son)
+				if(currentNode is self.root):
+					self.root = currentNode.parent
+				currentNode = currentNode.parent
+				continue	
 		return	
 
-	
+	#deletes node as it does in BST and returns the parent of the physically deleted node, whilst updating the maximum, root and size of tree as needed
+	def BSTdelete(self,node: AVLNode, rec = False):
+		#first update maximum, if we looking at succ and its the maximum we dont want to change it
+		if(self.maxNode.key == node.key and not rec):
+			if(node.left.key is not None):
+				self.maxNode = node.left
+			else:
+				self.maxNode = node.parent
+		#case 1: node is a leaf
+		#replaces it with virtual leaf or to None if tree is single leaf
+		if((node.left.key is None) and (node.right.key is None)):
+			#if tree is a single leaf
+			if(self.root.key == node.key):
+				self.root = None
+			else:
+				#makes a virtual node and connects it to node's parent instead of node
+				virtual = AVLNode(node.key,None,None,True)
+				virtual.setParent(node.parent)
+				virtual.key = None
+			self.treeSize -= 1
+			return node.parent
+		#case 2: node has one child
+		#then that child has no children of its own, bypass node
+		elif((node.left.key is None) or (node.right.key is None)):
+			son = node.left if node.right.key is None else node.right
+			son.setParent(node.parent)
+			if(son.parent is None):
+				self.root = son
+			self.treeSize -= 1
+			return node.parent
+		#case 3: node has 2 children
+		#find succesor and replace
+		else:
+			succ = node.getSuccessor()
+			succParent = self.BSTdelete(succ, True)
+			#replace node by succ
+			node.left.setParent(succ)
+			node.right.setParent(succ)
+			succ.setParent(node.parent)
+			if(succ.parent is None):
+				self.root = succ
+			#takes care of the edge case where succParent is node
+			if(succParent is node):
+				succParent = succ
+			return succParent
+			
+
+
+		
+
+			
 	"""joins self with item and another AVLTree
 
 	@type tree2: AVLTree 
