@@ -35,13 +35,16 @@ class AVLNode(object):
 			parent.right = self
 
 	def updateHeight(self):
-		if(self.key is None):
+		# check if virtual node
+		if(not self.is_real_node()):
 			return
 		self.height = max(self.left.height, self.right.height) + 1
 		
 	def getBalanceFactor(self):
-		if(self.key is None):
+		# check if virtual node
+		if(not self.is_real_node):
 			return 0
+		# update heights of sons
 		self.left.updateHeight()
 		self.right.updateHeight()
 		return self.left.height - self.right.height
@@ -211,21 +214,25 @@ class AVLTree(object):
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
 	def finger_search(self, key):
+		# edge case - if key is maxNode
+		if( key == self.max_node().key):
+			return self.max_node(), 0
+		
 		# initialize variables for search
-		currentNode = self.max_node
+		currentNode = self.max_node()
 		searchLength = 0
 		# loop for going up to find sub tree that key suppodes to be in
 		while (key < currentNode.key):
-			if (currentNode == self.get_root):
+			if (currentNode == self.get_root()):
 				break
-			if (key < currentNode.parent):
+			if (key < currentNode.parent.key):
 				currentNode = currentNode.parent
 				searchLength += 1
 				continue
-			elif (key > currentNode.parent):
+			elif (key > currentNode.parent.key):
 				break
 		# if got to root - do a regular search
-		if (currentNode == self.get_root):
+		if (currentNode == self.get_root()):
 			x,e = self.search(key)
 			# if not found return None, -1
 			if (x == None):
@@ -233,7 +240,7 @@ class AVLTree(object):
 			# if found add e to searchLength add return
 			else:
 				searchLength += e
-				return x, searchLength
+				return x, searchLength+1
 		# if not root: do search from currentNode
 		else:
 			while (currentNode.key != None):
@@ -246,7 +253,7 @@ class AVLTree(object):
 					currentNode = currentNode.left
 					searchLength =+ 1
 		if (currentNode != None):
-			return currentNode, searchLength
+			return currentNode, searchLength+1
 		else:
 			return None, -1
 
@@ -269,7 +276,7 @@ class AVLTree(object):
 			self.root = AVLNode(key, val)
 			self.maxNode = self.root
 			self.treeSize += 1
-			return
+			return self.root, 0, 0
 		#inserting the node
 		parentNode, searchHeight = self.searchMaster(key, False)
 		node = AVLNode(key,val)
@@ -320,8 +327,80 @@ class AVLTree(object):
 	and h is the number of PROMOTE cases during the AVL rebalancing
 	"""
 	def finger_insert(self, key, val):
+		# edge case - if tree is empty
+		if(self.root == None):
+			self.root = AVLNode(key, val)
+			self.maxNode = self.root
+			self.root.updateHeight()
+			self.treeSize += 1
+			return self.root, 0, 0
 		
-		return None, -1, -1
+		
+		# initialize variables for search
+		nodeToAdd = AVLNode(key, val)
+		currentNode = self.max_node()
+		searchLength = 0
+
+		# if smaller than max_node
+		if(key < currentNode.key):
+			# loop for going up to find sub tree that key suppodes to be in
+			while (key < currentNode.key):
+				if (currentNode == self.get_root):
+					break
+				if (key < currentNode.parent.key):
+					currentNode = currentNode.parent
+					searchLength += 1
+					continue
+				elif (key > currentNode.parent.key):
+					break
+		
+			# if got to root - do a regular search
+			if (currentNode == self.get_root()):
+				parentNode, e = self.searchMaster(key, False)
+				searchLength += e
+				currentNode = parentNode
+			# if not root: do search from currentNode
+			else:
+				while (currentNode.key != None):
+					if(key > currentNode.key):
+						if(currentNode.right.key is None):
+							break
+						currentNode = currentNode.right
+						searchLength =+ 1
+					else:
+						if(currentNode.left.key is None):
+							break
+						currentNode = currentNode.left
+						searchLength =+ 1
+		# if bigger then naxNode - update max node
+		else:
+			self.maxNode = nodeToAdd
+		parentNode = currentNode
+
+		nodeToAdd.setParent(parentNode)
+		nodeToAdd.updateHeight()
+
+		# balance tree
+		promote = 0
+		son = nodeToAdd
+		while(parentNode != None):
+			currentHeight = parentNode.height
+			newHeight = parentNode.updateHeight()
+			balanceFactor = parentNode.getBalanceFactor()
+			if(abs(balanceFactor) < 2 and currentHeight == newHeight):
+				break
+			elif(abs(balanceFactor) < 2 and currentHeight != newHeight):
+				son = parentNode
+				parentNode = parentNode.parent
+				promote += 1
+				continue
+			else:
+				parentNode.rotate(balanceFactor, son)
+				if(parentNode is self.root):
+					self.root = parentNode.parent
+				break
+		
+		return nodeToAdd, searchLength+1, promote
 
 
 	"""deletes node from the dictionary
