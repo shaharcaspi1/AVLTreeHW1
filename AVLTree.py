@@ -55,7 +55,7 @@ class AVLNode(object):
 			successor = self.right
 			# go left all the way
 			while(successor.left.key != None):
-				successor = successor.left.key
+				successor = successor.left
 		# if no right son
 		else:
 			# initilaize temp node for finding successor
@@ -330,6 +330,9 @@ class AVLTree(object):
 	@pre: node is a real pointer to a node in self
 	"""
 	def delete(self, node):
+		# check for edge case - tree is empty
+		if(self.root is None):
+			return
 		#delete the node and get the parent of the physically deleted node(might be the parent of where the succesor was)
 		currentNode = self.BSTdelete(node)
 		#rotate
