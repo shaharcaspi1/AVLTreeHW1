@@ -42,11 +42,13 @@ class AVLNode(object):
 		
 	def getBalanceFactor(self):
 		# check if virtual node
-		if(not self.is_real_node):
+		if(not self.is_real_node()):
 			return 0
 		# update heights of sons
-		self.left.updateHeight()
-		self.right.updateHeight()
+		if (self.left.is_real_node()):
+			self.left.updateHeight()
+		if (self.right.is_real_node()):
+			self.right.updateHeight()
 		return self.left.height - self.right.height
 
 	def getSuccessor(self):
@@ -102,8 +104,8 @@ class AVLNode(object):
 		A.parent = B
 
 		# update heights
-		A.height = max(A.left.height, A.right.height)
-		B.height = max(B.left.height, B.right.height)
+		A.updateHeight()
+		B.updateHeight()
 
 		return
 
@@ -124,8 +126,8 @@ class AVLNode(object):
 		A.parent = B
 
 		# update heights
-		A.height = max(A.left.height, A.right.height)
-		B.height = max(A.height, B.right.height)
+		A.updateHeight()
+		B.updateHeight()
 
 		return
 		
@@ -200,8 +202,9 @@ class AVLTree(object):
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
 	def search(self, key):
+		if(self.get_root() is None):
+			return None, -1
 		checkNode = self.searchMaster(key, True)
-
 		return checkNode
 
 
@@ -225,7 +228,7 @@ class AVLTree(object):
 		while (key < currentNode.key):
 			if (currentNode == self.get_root()):
 				break
-			if (key < currentNode.parent.key):
+			if (key <= currentNode.parent.key):
 				currentNode = currentNode.parent
 				searchLength += 1
 				continue
@@ -345,7 +348,7 @@ class AVLTree(object):
 		if(key < currentNode.key):
 			# loop for going up to find sub tree that key suppodes to be in
 			while (key < currentNode.key):
-				if (currentNode == self.get_root):
+				if (currentNode == self.get_root()):
 					break
 				if (key < currentNode.parent.key):
 					currentNode = currentNode.parent
@@ -379,6 +382,7 @@ class AVLTree(object):
 
 		nodeToAdd.setParent(parentNode)
 		nodeToAdd.updateHeight()
+		self.treeSize += 1
 
 		# balance tree
 		promote = 0
