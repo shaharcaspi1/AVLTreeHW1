@@ -516,9 +516,20 @@ class AVLTree(object):
 	dictionary smaller than node.key, and right is an AVLTree representing the keys in the 
 	dictionary larger than node.key.
 	"""
-	def split(self, node):
-		return None, None
-
+	def split(self, node: AVLNode):
+		t1 = AVLTree(node.left)
+		t2 = AVLTree(node.right)
+		while(node is not None):
+			currKey = node.key
+			node = node.parent
+			if(node is not None):
+				#add to smaller
+				if(node.key < currKey):
+					t1.join(node.left, node.key, node.value)
+				#add to bigger
+				if(node.key > currKey):
+					t2.join(node.right, node.key, node.value)
+		return t1, t2
 	
 	"""returns an array representing dictionary 
 
