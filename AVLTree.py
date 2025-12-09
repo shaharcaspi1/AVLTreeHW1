@@ -507,6 +507,13 @@ class AVLTree(object):
 		# create node with key = key, value = val for joining
 		joinNode = AVLNode(key,val)
 
+		# edge case - one of the trees are empty
+		if (self.root is None or self.root.key is None):
+			tree2.insert(key,val)
+			self.changeTree(tree2)
+			return
+		if (tree2.root is None or tree2.root.key is None):
+			return
 
 		# var to checking if self is higher than tree2
 		selfIsHigher = True
@@ -535,7 +542,8 @@ class AVLTree(object):
 		# edge case - shorter tree is only on node
 		if (h == 0):
 			higherTree.insert(shorterTree.root.key, shorterTree.root.value)
-			self = higherTree
+			higherTree.insert(key,val)
+			self.changeTree(higherTree)
 			return
 
 		### perform the join
@@ -577,11 +585,16 @@ class AVLTree(object):
 					self.root = parentNode.parent
 				
 
-		self.root = higherTree.root
+		self.changeTree(higherTree)
 		self.treeSize = newSize
 		return
 
 
+	def changeTree(self,other):
+		self.root = other.root
+		self.maxNode = other.maxNode
+		self.treeSize = other.treeSize
+		
 
 	def getMinKey(self):
 		minNode = self.root
@@ -605,6 +618,8 @@ class AVLTree(object):
 		t1 = AVLTree(node.left)
 		t2 = AVLTree(node.right)
 		while(node is not None):
+			print("t1 root ", t1.root.key)
+			print("t2 root ", t2.root.key)
 			currKey = node.key
 			node = node.parent
 			if(node is not None):
