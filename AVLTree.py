@@ -170,9 +170,9 @@ class AVLTree(object):
 	"""
 	Constructor, you are allowed to add more fields.
 	"""
-	def __init__(self):
-		self.root = None
-		self.maxNode = None
+	def __init__(self, root = None):
+		self.root = root
+		self.maxNode = root
 		self.treeSize = 0
 
 
@@ -277,6 +277,7 @@ class AVLTree(object):
 		#tree is empty
 		if(self.root == None):
 			self.root = AVLNode(key, val)
+			self.root.updateHeight()
 			self.maxNode = self.root
 			self.treeSize += 1
 			return self.root, 0, 0
@@ -503,7 +504,90 @@ class AVLTree(object):
 	or the opposite way
 	"""
 	def join(self, tree2, key, val):
+		# create node with key = key, value = val for joining
+		joinNode = AVLNode(key,val)
+
+
+		# var to checking if self is higher than tree2
+		selfIsHigher = True
+		if (self.root.height < tree2.root.height):
+			selfIsHigher = False
+
+		# define general vars for joining
+		higherTree, shorterTree = self if selfIsHigher else tree2, tree2 if selfIsHigher else self
+		h = shorterTree.root.height
+		newSize = higherTree.size() + shorterTree.size() + 1
+
+		# check where to join (left or right)
+		addToLeft = True
+		if (higherTree.max_node().key < shorterTree.getMinKey()):
+			addToLeft = False
+		
+		# edge case - heights equal
+		h1 = higherTree.root.height
+		if (h == h1):
+			shorterTree.root.setParent(joinNode)
+			higherTree.root.setParent(joinNode)
+			joinNode.updateHeight()
+			self.root = joinNode
+			return
+			
+		# edge case - shorter tree is only on node
+		if (h == 0):
+			higherTree.insert(shorterTree.root.key, shorterTree.root.value)
+			self = higherTree
+			return
+
+		### perform the join
+		parentJoinNode = higherTree.root
+
+		# add the shorter tree to left
+		if (addToLeft):
+			while (parentJoinNode.height > h):
+				parentJoinNode = parentJoinNode.left
+			shorterTree.root.setParent(joinNode)
+			parentJoinNode.right.setParent(joinNode)
+			joinNode.setParent(parentJoinNode)
+			joinNode.updateHeight()
+		else:
+			while (parentJoinNode.height > h):
+				parentJoinNode = parentJoinNode.right
+			shorterTree.root.setParent(joinNode)
+			parentJoinNode.right.setParent(joinNode)
+			joinNode.setParent(parentJoinNode)
+			joinNode.updateHeight()
+		
+
+		### balance upwards
+		son = joinNode.left if addToLeft else joinNode.right
+		parentNode = joinNode
+		while(parentNode != None):
+			currentHeight = parentNode.height
+			newHeight = parentNode.updateHeight()
+			balanceFactor = parentNode.getBalanceFactor()
+			if(abs(balanceFactor) < 2 and currentHeight == newHeight):
+				break
+			elif(abs(balanceFactor) < 2 and currentHeight != newHeight):
+				son = parentNode
+				parentNode = parentNode.parent
+				continue
+			else:
+				parentNode.rotate(balanceFactor, son)
+				if(parentNode is self.root):
+					self.root = parentNode.parent
+				
+
+		self.root = higherTree.root
+		self.treeSize = newSize
 		return
+
+
+
+	def getMinKey(self):
+		minNode = self.root
+		while (minNode.right.key is not None):
+			minNode = minNode.right
+		return minNode.key
 
 
 	"""splits the dictionary at a given node
@@ -517,6 +601,7 @@ class AVLTree(object):
 	dictionary larger than node.key.
 	"""
 	def split(self, node: AVLNode):
+		# define t1 - smaller Tree, t2 - bigger tree
 		t1 = AVLTree(node.left)
 		t2 = AVLTree(node.right)
 		while(node is not None):
@@ -525,10 +610,10 @@ class AVLTree(object):
 			if(node is not None):
 				#add to smaller
 				if(node.key < currKey):
-					t1.join(node.left, node.key, node.value)
+					t1.join(AVLTree(node.left), node.key, node.value)
 				#add to bigger
 				if(node.key > currKey):
-					t2.join(node.right, node.key, node.value)
+					t2.join(AVLTree(node.right), node.key, node.value)
 		return t1, t2
 	
 	"""returns an array representing dictionary 
