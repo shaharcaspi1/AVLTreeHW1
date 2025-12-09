@@ -429,7 +429,7 @@ class AVLTree(object):
 				currentNode = currentNode.parent
 				continue
 			else:
-				son = currentNode.right if balanceFactor == 2 else currentNode.left
+				son = currentNode.left if balanceFactor == 2 else currentNode.right
 				currentNode.rotate(balanceFactor, son)
 				if(currentNode is self.root):
 					self.root = currentNode.parent
@@ -445,6 +445,9 @@ class AVLTree(object):
 				self.maxNode = node.left
 			else:
 				self.maxNode = node.parent
+		#case 0: node is virtual
+		if(not node.is_real_node()):
+			return
 		#case 1: node is a leaf
 		#replaces it with virtual leaf or to None if tree is single leaf
 		if((node.left.key is None) and (node.right.key is None)):
