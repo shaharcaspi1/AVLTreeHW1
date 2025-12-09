@@ -45,10 +45,8 @@ class AVLNode(object):
 		if(not self.is_real_node()):
 			return 0
 		# update heights of sons
-		if (self.left.is_real_node()):
-			self.left.updateHeight()
-		if (self.right.is_real_node()):
-			self.right.updateHeight()
+		self.left.updateHeight()
+		self.right.updateHeight()
 		return self.left.height - self.right.height
 
 	def getSuccessor(self):
@@ -170,9 +168,11 @@ class AVLTree(object):
 	"""
 	Constructor, you are allowed to add more fields.
 	"""
-	def __init__(self, root = None):
-		self.root = root
-		self.maxNode = root
+	def __init__(self, Root = None):
+		if (Root is not None):
+			Root.parent = None
+		self.root = Root
+		self.maxNode = Root
 		self.treeSize = 0
 
 
@@ -537,13 +537,7 @@ class AVLTree(object):
 			higherTree.root.setParent(joinNode)
 			joinNode.updateHeight()
 			self.root = joinNode
-			return
-			
-		# edge case - shorter tree is only on node
-		if (h == 0):
-			higherTree.insert(shorterTree.root.key, shorterTree.root.value)
-			higherTree.insert(key,val)
-			self.changeTree(higherTree)
+			self.treeSize = newSize
 			return
 
 		### perform the join
@@ -551,24 +545,26 @@ class AVLTree(object):
 
 		# add the shorter tree to left
 		if (addToLeft):
-			while (parentJoinNode.height > h):
+			while (parentJoinNode.height > h+1):
 				parentJoinNode = parentJoinNode.left
 			shorterTree.root.setParent(joinNode)
-			parentJoinNode.right.setParent(joinNode)
+			parentJoinNode.left.setParent(joinNode)
 			joinNode.setParent(parentJoinNode)
 			joinNode.updateHeight()
+			parentJoinNode.updateHeight()
 		else:
-			while (parentJoinNode.height > h):
+			while (parentJoinNode.height > h+1):
 				parentJoinNode = parentJoinNode.right
 			shorterTree.root.setParent(joinNode)
 			parentJoinNode.right.setParent(joinNode)
 			joinNode.setParent(parentJoinNode)
 			joinNode.updateHeight()
+			parentJoinNode.updateHeight()
 		
 
 		### balance upwards
-		son = joinNode.left if addToLeft else joinNode.right
-		parentNode = joinNode
+		son = joinNode
+		parentNode = parentJoinNode
 		while(parentNode != None):
 			currentHeight = parentNode.height
 			newHeight = parentNode.updateHeight()
@@ -581,8 +577,8 @@ class AVLTree(object):
 				continue
 			else:
 				parentNode.rotate(balanceFactor, son)
-				if(parentNode is self.root):
-					self.root = parentNode.parent
+				if(parentNode is higherTree.root):
+					higherTree.root = parentNode.parent
 				
 
 		self.changeTree(higherTree)
@@ -598,7 +594,7 @@ class AVLTree(object):
 
 	def getMinKey(self):
 		minNode = self.root
-		while (minNode.right.key is not None):
+		while (minNode.left.key is not None):
 			minNode = minNode.right
 		return minNode.key
 
@@ -617,18 +613,28 @@ class AVLTree(object):
 		# define t1 - smaller Tree, t2 - bigger tree
 		t1 = AVLTree(node.left)
 		t2 = AVLTree(node.right)
+		node.right = AVLNode(None,None,node,True)
+		node.left = AVLNode(None,None,node,True)
+		counter = 0
 		while(node is not None):
-			print("t1 root ", t1.root.key)
-			print("t2 root ", t2.root.key)
 			currKey = node.key
 			node = node.parent
 			if(node is not None):
 				#add to smaller
 				if(node.key < currKey):
-					t1.join(AVLTree(node.left), node.key, node.value)
+					temp1 = AVLTree(node.left)
+					node.left = AVLNode(None,None,node,True)
+					node.right = AVLNode(None,None,node,True)
+					t1.join(temp1, node.key, node.value)
+					
 				#add to bigger
-				if(node.key > currKey):
-					t2.join(AVLTree(node.right), node.key, node.value)
+				elif(node.key > currKey):
+					temp2 = AVLTree(node.right)
+					node.right = AVLNode(None,None,node,True)
+					node.left = AVLNode(None,None,node,True)
+					t2.join(temp2, node.key, node.value)
+
+			counter += 1
 		return t1, t2
 	
 	"""returns an array representing dictionary 
@@ -677,3 +683,8 @@ class AVLTree(object):
 	def get_root(self):
 		return self.root
 	
+def print_tree_visual(node, level=0, prefix="Root: "):
+    if node.key is not None:
+        print_tree_visual(node.right, level + 1, "R--- ")
+        print(' ' * 6 * level + prefix + str(node.key) + " | H " + str(node.height) + " BF " + str(node.getBalanceFactor()))
+        print_tree_visual(node.left, level + 1, "L--- ")
