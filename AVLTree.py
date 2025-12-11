@@ -150,7 +150,6 @@ class AVLNode(object):
 			if(sonBF == 1 or sonBF == 0):
 				self.rotationR()
 			elif(sonBF == -1):
-				print(son.key ," LR coming")
 				self.rotationLR()
 		else:
 			if(sonBF == -1 or sonBF == 0):
@@ -217,6 +216,10 @@ class AVLTree(object):
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
 	def finger_search(self, key):
+		# edge case - tree is empty
+		if (self.root is None or not self.root.is_real_node()):
+			return None, -1
+
 		# edge case - if key is maxNode
 		if( key == self.max_node().key):
 			return self.max_node(), 0
@@ -513,6 +516,7 @@ class AVLTree(object):
 			self.changeTree(tree2)
 			return
 		if (tree2.root is None or tree2.root.key is None):
+			self.insert(key,val)
 			return
 
 		# var to checking if self is higher than tree2
@@ -524,6 +528,8 @@ class AVLTree(object):
 		higherTree, shorterTree = self if selfIsHigher else tree2, tree2 if selfIsHigher else self
 		h = shorterTree.root.height
 		newSize = higherTree.size() + shorterTree.size() + 1
+		newMaxNode = higherTree.max_node() if (higherTree.max_node().key > shorterTree.max_node().key) else shorterTree.max_node()
+
 
 		# check where to join (left or right)
 		addToLeft = True
@@ -536,6 +542,7 @@ class AVLTree(object):
 			shorterTree.root.setParent(joinNode)
 			higherTree.root.setParent(joinNode)
 			joinNode.updateHeight()
+			self.maxNode = newMaxNode
 			self.root = joinNode
 			self.treeSize = newSize
 			return
@@ -583,6 +590,7 @@ class AVLTree(object):
 
 		self.changeTree(higherTree)
 		self.treeSize = newSize
+		self.maxNode = newMaxNode
 		return
 
 
