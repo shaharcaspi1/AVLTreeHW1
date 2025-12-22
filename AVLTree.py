@@ -83,7 +83,7 @@ class AVLNode(object):
 	@returns: False if self is a virtual node, True otherwise.
 	"""
 	def is_real_node(self):
-		return not ((self.key == None) and (self.value == None))
+		return not (self.key == None)
 
 	def rotationR(self):
 		# initilize temp vars for rotation
@@ -292,7 +292,10 @@ class AVLTree(object):
 
 		#tree fields stuff
 		self.treeSize += 1
-		if (key > self.maxNode.key):
+		if(self.maxNode.key != None):
+			if (key > self.maxNode.key):
+				self.maxNode = node
+		else:
 			self.maxNode = node
 		
 		#rotating
@@ -552,7 +555,7 @@ class AVLTree(object):
 
 		# add the shorter tree to left
 		if (addToLeft):
-			while (parentJoinNode.height > h+1):
+			while (parentJoinNode.left.height > h):
 				parentJoinNode = parentJoinNode.left
 			shorterTree.root.setParent(joinNode)
 			parentJoinNode.left.setParent(joinNode)
@@ -560,7 +563,7 @@ class AVLTree(object):
 			joinNode.updateHeight()
 			parentJoinNode.updateHeight()
 		else:
-			while (parentJoinNode.height > h+1):
+			while (parentJoinNode.right.height > h):
 				parentJoinNode = parentJoinNode.right
 			shorterTree.root.setParent(joinNode)
 			parentJoinNode.right.setParent(joinNode)
@@ -574,15 +577,18 @@ class AVLTree(object):
 		parentNode = parentJoinNode
 		while(parentNode != None):
 			currentHeight = parentNode.height
-			newHeight = parentNode.updateHeight()
+			parentNode.updateHeight()
+			newHeight = parentNode.height
 			balanceFactor = parentNode.getBalanceFactor()
 			if(abs(balanceFactor) < 2 and currentHeight == newHeight):
-				break
+				son = parentNode
+				parentNode = parentNode.parent
+				continue
 			elif(abs(balanceFactor) < 2 and currentHeight != newHeight):
 				son = parentNode
 				parentNode = parentNode.parent
 				continue
-			else:
+			else:	
 				parentNode.rotate(balanceFactor, son)
 				if(parentNode is higherTree.root):
 					higherTree.root = parentNode.parent
@@ -628,6 +634,12 @@ class AVLTree(object):
 			currKey = node.key
 			node = node.parent
 			if(node is not None):
+				# print("t1")
+				# print_tree_visual(t1.root)
+				# print()
+				# print("t2")
+				# print_tree_visual(t2.root)
+				# print()
 				#add to smaller
 				if(node.key < currKey):
 					temp1 = AVLTree(node.left)
@@ -641,7 +653,6 @@ class AVLTree(object):
 					node.right = AVLNode(None,None,node,True)
 					node.left = AVLNode(None,None,node,True)
 					t2.join(temp2, node.key, node.value)
-
 			counter += 1
 		return t1, t2
 	
