@@ -277,8 +277,8 @@ class AVLTree(object):
 	and h is the number of PROMOTE cases during the AVL rebalancing
 	"""
 	def insert(self, key, val):
-		#tree is empty
-		if(self.root == None):
+		#tree is empty or virtual node
+		if(self.root is None or self.root.key is None):
 			self.root = AVLNode(key, val)
 			self.root.updateHeight()
 			self.maxNode = self.root
@@ -514,13 +514,14 @@ class AVLTree(object):
 		joinNode = AVLNode(key,val)
 
 		# edge case - one of the trees are empty
+		if (tree2.root is None or tree2.root.key is None):
+			self.insert(key,val)
+			return
 		if (self.root is None or self.root.key is None):
 			tree2.insert(key,val)
 			self.changeTree(tree2)
 			return
-		if (tree2.root is None or tree2.root.key is None):
-			self.insert(key,val)
-			return
+		
 
 		# var to checking if self is higher than tree2
 		selfIsHigher = True
@@ -629,18 +630,10 @@ class AVLTree(object):
 		t2 = AVLTree(node.right)
 		node.right = AVLNode(None,None,node,True)
 		node.left = AVLNode(None,None,node,True)
-		counter = 0
 		while(node is not None):
 			currKey = node.key
 			node = node.parent
 			if(node is not None):
-				# print("t1")
-				# print_tree_visual(t1.root)
-				# print()
-				# print("t2")
-				# print_tree_visual(t2.root)
-				# print()
-				#add to smaller
 				if(node.key < currKey):
 					temp1 = AVLTree(node.left)
 					node.left = AVLNode(None,None,node,True)
@@ -653,7 +646,8 @@ class AVLTree(object):
 					node.right = AVLNode(None,None,node,True)
 					node.left = AVLNode(None,None,node,True)
 					t2.join(temp2, node.key, node.value)
-			counter += 1
+		t1.set_max_node()
+		t2.set_max_node()
 		return t1, t2
 	
 	"""returns an array representing dictionary 
@@ -685,6 +679,14 @@ class AVLTree(object):
 	def max_node(self):
 		return self.maxNode
 
+	#sets max node
+	def set_max_node(self):
+		if(self.root is None or not self.root.is_real_node()):
+			return
+		node = self.root
+		while(node.right.key is not None):
+			node = node.right
+		self.maxNode = node
 	"""returns the number of items in dictionary 
 
 	@rtype: int
@@ -702,8 +704,3 @@ class AVLTree(object):
 	def get_root(self):
 		return self.root
 	
-def print_tree_visual(node, level=0, prefix="Root: "):
-    if node.key is not None:
-        print_tree_visual(node.right, level + 1, "R--- ")
-        print(' ' * 6 * level + prefix + str(node.key) + " | H " + str(node.height) + " BF " + str(node.getBalanceFactor()))
-        print_tree_visual(node.left, level + 1, "L--- ")
