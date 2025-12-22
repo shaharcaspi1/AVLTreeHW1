@@ -337,8 +337,8 @@ class AVLTree(object):
 	and h is the number of PROMOTE cases during the AVL rebalancing
 	"""
 	def finger_insert(self, key, val):
-		# edge case - if tree is empty
-		if(self.root == None):
+		# edge case - if tree is empty or virtual node
+		if(self.root is None or self.root.key is None):
 			self.root = AVLNode(key, val)
 			self.maxNode = self.root
 			self.root.updateHeight()
