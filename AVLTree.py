@@ -533,7 +533,7 @@ class AVLTree(object):
 
 		# check where to join (left or right)
 		addToLeft = True
-		if (higherTree.max_node().key < shorterTree.getMinKey()):
+		if (higherTree.root.key < shorterTree.root.key):
 			addToLeft = False
 		
 		# edge case - heights equal
