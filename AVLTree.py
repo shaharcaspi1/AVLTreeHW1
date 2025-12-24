@@ -37,7 +37,7 @@ class AVLNode(object):
 	def updateHeight(self):
 		# check if virtual node
 		if(not self.is_real_node()):
-			return
+			return None
 		self.height = max(self.left.height, self.right.height) + 1
 		
 	def getBalanceFactor(self):
@@ -303,7 +303,8 @@ class AVLTree(object):
 		son = node
 		while(parentNode != None):
 			currentHeight = parentNode.height
-			newHeight = parentNode.updateHeight()
+			parentNode.updateHeight()
+			newHeight = parentNode.height
 			balanceFactor = parentNode.getBalanceFactor()
 			if(abs(balanceFactor) < 2 and currentHeight == newHeight):
 				break
@@ -396,7 +397,8 @@ class AVLTree(object):
 		son = nodeToAdd
 		while(parentNode != None):
 			currentHeight = parentNode.height
-			newHeight = parentNode.updateHeight()
+			parentNode.updateHeight()
+			newHeight = parentNode.height
 			balanceFactor = parentNode.getBalanceFactor()
 			if(abs(balanceFactor) < 2 and currentHeight == newHeight):
 				break
