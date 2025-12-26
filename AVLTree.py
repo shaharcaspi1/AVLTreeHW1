@@ -14,6 +14,10 @@ class AVLNode(object):
 	@param key: key of your node
 	@type value: string
 	@param value: data of your node
+	@type parent: AVLNode or None
+    @param parent: parent of your node
+    @type isVirtual: bool
+    @param isVirtual: whether the node is a virtual node
 	"""
 	def __init__(self, key, value, parent = None, isVitrual = False):
 		self.key = key
@@ -24,7 +28,13 @@ class AVLNode(object):
 		self.setParent(parent)
 		self.height = -1
 
-	#sets the parent of a node
+	"""sets the parent of a node, ensuring the node is a son of the parent
+	@type parent: AVLNode or None
+    @param parent: The new parent node to assign
+    @rtype: None
+    @return: None if virtual node
+	"""
+	
 	def setParent(self, parent):
 		self.parent = parent
 		if(parent is None or self.key is None):
@@ -34,12 +44,20 @@ class AVLNode(object):
 		else:
 			parent.right = self
 
+	"""sets the height of given node using it's sons
+	@rtype: None
+	@return: None if virtual node
+	"""
 	def updateHeight(self):
 		# check if virtual node
 		if(not self.is_real_node()):
 			return None
 		self.height = max(self.left.height, self.right.height) + 1
-		
+
+	"""retrieves the balance factor of given node
+	@rtype: int
+	@return: balance-factor of node
+	"""
 	def getBalanceFactor(self):
 		# check if virtual node
 		if(not self.is_real_node()):
@@ -48,7 +66,10 @@ class AVLNode(object):
 		self.left.updateHeight()
 		self.right.updateHeight()
 		return self.left.height - self.right.height
-
+	"""retrieves the successor of the given node in the tree it belongs to
+	@rtype: AVLNode
+	@returns: the successor of the node
+	"""
 	def getSuccessor(self):
 		# initilaize successor
 		successor = None
@@ -85,6 +106,7 @@ class AVLNode(object):
 	def is_real_node(self):
 		return not (self.key == None)
 
+	"""makes a right rotation on the node"""
 	def rotationR(self):
 		# initilize temp vars for rotation
 		A = self
@@ -106,7 +128,7 @@ class AVLNode(object):
 		B.updateHeight()
 
 		return
-
+	"""makes a left a rotation on the node"""
 	def rotationL(self):
 		# initilize temp vars for rotation
 		A = self
@@ -130,20 +152,25 @@ class AVLNode(object):
 		return
 		
 
-
+	"""makes a right and then a left rotation on the node"""
 	def rotationRL(self):
 		self.right.rotationR()
 		self.rotationL()
 
 		return
-	
+	"""makes a left and then a right rotation on the node"""
 	def rotationLR(self):
 		self.left.rotationL()
 		self.rotationR()
 
 		return
 	
-	#master for rotation, gets a node and its BF (always 2 if rotation is needed), and its son in the problematic route
+	"""master for rotation, gets a node and its BF, and its son in the problematic route
+	@type BF: int
+	@param BF: balance factor of node
+	@type son: AVLnode
+	@param son: the son whos making the balancing issue
+	"""
 	def rotate(self, BF, son):
 		sonBF = son.getBalanceFactor()
 		if(BF == 2):
@@ -166,6 +193,8 @@ class AVLTree(object):
 
 	"""
 	Constructor, you are allowed to add more fields.
+	@type Root: AVLNode
+	@param Root: if initializing through a already existing subtree in a larger tree
 	"""
 	def __init__(self, Root = None):
 		if (Root is not None):
@@ -174,7 +203,16 @@ class AVLTree(object):
 		self.maxNode = Root
 		self.treeSize = 0
 
-
+	"""does the searching logic in insert and search
+	@type key: int
+	@param key: key searched for
+	@type isSearch: bool
+	@param isSearch: true if calling function for searching and false otherwise
+	@rtype: (AVLnode, int)
+	@returns: if key in tree returns a tuple (x,e) where x is the node corresponding to key,
+	and e is the number of edges on the path between the starting node and ending node+1.
+	if not in tree returns None if searching and if inserting returns a tuple(x,e) where x is now the node that would be the immediate parent of the node that would contain key
+	"""
 	def searchMaster(self, key, isSearch):
 		searchDepth = 0
 		currentNode = self.root
@@ -183,10 +221,10 @@ class AVLTree(object):
 				return (currentNode, searchDepth+1)
 			if(key > currentNode.key):
 				currentNode = currentNode.right
-				searchDepth =+ 1
+				searchDepth += 1
 			else:
 				currentNode = currentNode.left
-				searchDepth =+ 1
+				searchDepth += 1
 		if(isSearch):
 			return None, -1
 		else:
@@ -356,33 +394,27 @@ class AVLTree(object):
 		if(key < currentNode.key):
 			# loop for going up to find sub tree that key suppodes to be in
 			while (key < currentNode.key):
-				if (currentNode == self.get_root()):
+				if (currentNode is self.get_root()):
 					break
 				if (key < currentNode.parent.key):
-					currentNode = currentNode.parent
 					searchLength += 1
+					currentNode = currentNode.parent
 					continue
 				elif (key > currentNode.parent.key):
 					break
 		
-			# if got to root - do a regular search
-			if (currentNode == self.get_root()):
-				parentNode, e = self.searchMaster(key, False)
-				searchLength += e
-				currentNode = parentNode
-			# if not root: do search from currentNode
-			else:
-				while (currentNode.key != None):
-					if(key > currentNode.key):
-						if(currentNode.right.key is None):
-							break
-						currentNode = currentNode.right
-						searchLength =+ 1
-					else:
-						if(currentNode.left.key is None):
-							break
-						currentNode = currentNode.left
-						searchLength =+ 1
+
+			while (currentNode.key is not None):
+				if(key > currentNode.key):
+					if(currentNode.right.key is None):
+						break
+					searchLength += 1
+					currentNode = currentNode.right
+				else:
+					if(currentNode.left.key is None):
+						break
+					searchLength += 1
+					currentNode = currentNode.left
 		# if bigger then naxNode - update max node
 		else:
 			self.maxNode = nodeToAdd
@@ -446,7 +478,14 @@ class AVLTree(object):
 				continue	
 		return	
 
-	#deletes node as it does in BST and returns the parent of the physically deleted node, whilst updating the maximum, root and size of tree as needed
+	"""deletes node as it does in BST and returns the parent of the physically deleted node, whilst updating the maximum, root and size of tree as needed
+	@type node: AVLNode
+	@param node: node to be deleted
+	@type rec: bool
+	@param rec: true if a function was called from withing the function and false otherwise
+	@rtype: AVLNode
+	@returns: parent of physically deleted node
+	"""
 	def BSTdelete(self,node: AVLNode, rec = False):
 		#first update maximum, if we looking at succ and its the maximum we dont want to change it
 		if(self.maxNode.key == node.key and not rec):
@@ -602,18 +641,15 @@ class AVLTree(object):
 		self.maxNode = newMaxNode
 		return
 
-
+	"""changes the pointers of a tree to a different tree
+	@type other: AVLTree
+	@param other: new tree parameters
+	"""
 	def changeTree(self,other):
 		self.root = other.root
 		self.maxNode = other.maxNode
 		self.treeSize = other.treeSize
 		
-
-	def getMinKey(self):
-		minNode = self.root
-		while (minNode.left.key is not None):
-			minNode = minNode.right
-		return minNode.key
 
 
 	"""splits the dictionary at a given node
@@ -681,7 +717,7 @@ class AVLTree(object):
 	def max_node(self):
 		return self.maxNode
 
-	#sets max node
+	"""sets max node"""
 	def set_max_node(self):
 		if(self.root is None or not self.root.is_real_node()):
 			return
